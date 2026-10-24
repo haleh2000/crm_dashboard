@@ -1,0 +1,35 @@
+import { SENTIMENTS, type Sentiment } from '@/shared/domain/insights';
+import { formatPersianNumber } from '@/shared/lib/format';
+import { sentimentMeta } from '@/shared/ui';
+import type { Dimension } from '../domain/filters';
+
+export const dimensionLabels: Record<Dimension, string> = {
+  subject1: 'موضوع اصلی',
+  subject2: 'موضوع فرعی',
+  subject3: 'علت',
+  type: 'نوع کانال',
+  channel: 'کانال',
+  insuranceLine: 'رشته بیمه',
+  branch: 'شعبه',
+  sentiment: 'احساس',
+  operator: 'اپراتور',
+  weekday: 'روز هفته',
+  hour: 'ساعت',
+};
+
+/** Persian week, Saturday first (matches `persianWeekday`). */
+export const weekdayLabels = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه'];
+
+export const hourLabel = (hour: number | string) =>
+  formatPersianNumber(`${String(hour).padStart(2, '0')}:00`);
+
+const isSentiment = (value: string): value is Sentiment =>
+  (SENTIMENTS as readonly string[]).includes(value);
+
+/** Display text for a filter value (chips, tooltips); most dimensions hold display text already. */
+export const dimensionValueLabel = (dimension: Dimension, value: string) => {
+  if (dimension === 'sentiment' && isSentiment(value)) return sentimentMeta[value].label;
+  if (dimension === 'weekday') return weekdayLabels[Number(value)] ?? value;
+  if (dimension === 'hour') return hourLabel(value);
+  return value;
+};
