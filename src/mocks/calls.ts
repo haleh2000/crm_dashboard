@@ -63,7 +63,6 @@ const makeCall = (index: number, startedAt: Date, status: CallStatus): Call => {
     'negative',
     'negative',
   ] as const);
-  // The AI mostly agrees with the agent; sometimes only on the main subject, rarely not at all.
   const detection = random.next();
   const aiLevel1 = detection < 0.9 ? level1 : random.pick(Object.keys(subjectTree));
   const aiLevel2 =
@@ -76,7 +75,7 @@ const makeCall = (index: number, startedAt: Date, status: CallStatus): Call => {
           level2: aiLevel2,
           level3: random.pick(subjectTree[aiLevel1]?.[aiLevel2] ?? ['ندارد']),
         };
-  const confidenceFloor = detection < 0.78 ? 0.8 : detection < 0.9 ? 0.6 : 0.45;
+  const confidenceFloor = detection < 0.78 ? 0.8 : detection < 0.9 ? 0.6 : 0.45; 
   const durationSec =
     status === 'answered'
       ? 45 + Math.floor(random.next() * 540)
@@ -85,7 +84,7 @@ const makeCall = (index: number, startedAt: Date, status: CallStatus): Call => {
         : 0;
   const customerTickets = customer ? ticketsByCustomer.get(customer.nationalId) : undefined;
 
-  return {
+  return {  
     id: `C-${String(880_000 + index)}`,
     direction: random.next() < 0.9 ? 'inbound' : 'outbound',
     status,
@@ -108,7 +107,7 @@ const makeCall = (index: number, startedAt: Date, status: CallStatus): Call => {
     transcript: status === 'answered' ? buildTranscript(subject, sentiment, agentSentiment) : [],
     analysis:
       status === 'answered' && random.next() < 0.92
-        ? {
+        ?   {
             sentiment,
             agentSentiment,
             detectedSubject,
@@ -117,7 +116,9 @@ const makeCall = (index: number, startedAt: Date, status: CallStatus): Call => {
             autoLabel: autoLabelFor(subject),
             topic: level2,
             tags: [random.pick(aiTags), random.pick(aiTags)].filter(
-              (t, i, all) => all.indexOf(t) === i,
+              (t, i, all) => all.indexOf(t
+
+              ) === i,
             ),
             suggestedScenario: random.next() < 0.7 ? random.pick(scenarioNames) : undefined,
             summary: summaryFor(subject, sentiment),
@@ -130,7 +131,6 @@ const history = Array.from({ length: 1400 }, (_, index) =>
   makeCall(index, callTime(60), random.next() < 0.84 ? 'answered' : 'missed'),
 );
 
-/** A few calls happening right now, so the «جاری» counters are never empty. */
 const live = [
   makeCall(2000, new Date(NOW - 6 * MINUTE), 'ongoing'),
   makeCall(2001, new Date(NOW - 3 * MINUTE), 'ongoing'),
@@ -142,7 +142,6 @@ export const mockCalls: Call[] = [...live, ...history].sort(
   (a, b) => b.startedAt.getTime() - a.startedAt.getTime(),
 );
 
-/** The customer record behind a caller, for aggregations that need a branch or policy line. */
 export const customerOfCall = (call: Call) =>
   call.caller.nationalId
     ? mockCustomers.find((customer) => customer.nationalId === call.caller.nationalId)
